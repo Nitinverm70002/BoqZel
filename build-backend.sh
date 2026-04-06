@@ -6,8 +6,8 @@ echo "📦 Installing dependencies..."
 npm install
 
 echo "💎 Generating Prisma Client..."
-# Using the explicit path to avoid "command not found" errors
-./node_modules/.bin/prisma generate --schema=backend/prisma/schema.prisma
+# In a monorepo, npx is the safest way to find the prisma binary
+npx prisma generate --schema=backend/prisma/schema.prisma
 
 echo "🏗 Building backend..."
 # Building only the backend workspace

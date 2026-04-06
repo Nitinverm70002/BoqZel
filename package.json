@@ -12,5 +12,9 @@
     "dev": "concurrently \"npm run frontend:dev\" \"npm run backend:dev\"",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
+  },
+  "dependencies": {
+    "prisma": "^6.2.1",
+    "@prisma/client": "^6.2.1"
   }
 }

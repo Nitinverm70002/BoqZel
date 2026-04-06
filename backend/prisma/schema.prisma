@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Stay {
+  id            String   @id @default(cuid())
+  name          String
+  type          String   // 'hotel' | 'resort' | 'apartment' | 'villa'
+  image         String
+  rating        Float
+  reviewCount   Int
+  pricePerNight Int
+  currency      String   @default("USD")
+  location      String
+  amenities     String[]
+  verified      Boolean  @default(false)
+  description   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([location])
+  @@index([type])
+}
+
+model Vehicle {
+  id              String   @id @default(cuid())
+  name            String
+  type            String   // 'suv' | 'sedan' | 'luxury' | 'van' | 'jeep'
+  image           String
+  pricePerDay     Int
+  currency        String   @default("USD")
+  location        String
+  seats           Int
+  transmission    String   // 'Automatic' | 'Manual'
+  fuelType        String   // 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid'
+  driverOption    Boolean  @default(false)
+  verified        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([location])
+  @@index([type])
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  avatar        String?
+  provider      String   // 'google' | 'facebook' | 'github' | 'local'
+  providerId    String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([email])
+}

@@ -1,0 +1,16 @@
+{
+  "name": "boqzel-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "frontend:dev": "npm run dev -w frontend",
+    "backend:dev": "npm run dev -w backend",
+    "dev": "concurrently \"npm run frontend:dev\" \"npm run backend:dev\"",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  }
+}

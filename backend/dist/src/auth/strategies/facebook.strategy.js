@@ -18,9 +18,9 @@ let FacebookStrategy = class FacebookStrategy extends (0, passport_1.PassportStr
     configService;
     constructor(configService) {
         super({
-            clientID: configService.get('FACEBOOK_APP_ID'),
-            clientSecret: configService.get('FACEBOOK_APP_SECRET'),
-            callbackURL: `${configService.get('BACKEND_URL')}/auth/facebook/callback`,
+            clientID: configService.get('FACEBOOK_APP_ID') || 'placeholder-id',
+            clientSecret: configService.get('FACEBOOK_APP_SECRET') || 'placeholder-secret',
+            callbackURL: `${configService.get('BACKEND_URL') || 'http://localhost:4000'}/auth/facebook/callback`,
             scope: 'email',
             profileFields: ['emails', 'name'],
         });

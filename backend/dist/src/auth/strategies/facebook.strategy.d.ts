@@ -1,6 +1,6 @@
 import { Strategy } from 'passport-facebook';
 import { ConfigService } from '@nestjs/config';
-declare const FacebookStrategy_base: new (...args: [options: import("passport-facebook").StrategyOptionsWithRequest] | [options: import("passport-facebook").StrategyOptions]) => Strategy & {
+declare const FacebookStrategy_base: new (...args: [options: import("passport-facebook").StrategyOptions] | [options: import("passport-facebook").StrategyOptionsWithRequest]) => Strategy & {
     validate(...args: any[]): unknown;
 };
 export declare class FacebookStrategy extends FacebookStrategy_base {

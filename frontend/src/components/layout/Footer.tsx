@@ -1,16 +1,29 @@
 'use client';
 
+import { ElementType } from 'react';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { 
-  IconBrandLinkedin, 
-  IconBrandYoutube, 
   IconBrandInstagram,
+  IconBrandX,
+  IconMail,
   IconArrowRight 
 } from '@tabler/icons-react';
 
-const footerLinks = [
+interface FooterLink {
+  label: string;
+  href: string;
+  icon?: ElementType<{ size?: number; className?: string }>;
+}
+
+interface FooterSection {
+  title: string;
+  links: FooterLink[];
+}
+
+const footerLinks: FooterSection[] = [
   {
     title: 'Discover',
     links: [
@@ -30,17 +43,17 @@ const footerLinks = [
   {
     title: 'Company',
     links: [
-      { label: 'About Us', href: '/#about-section' },
-      { label: 'Careers', href: '#' },
-      { label: 'Contact', href: '#' },
+      { label: 'About Us', href: '/about' },
+      { label: 'Careers', href: '/careers' },
+      { label: 'Contact', href: '/#contact-section' },
     ],
   },
   {
     title: 'Social',
     links: [
-      { label: 'LinkedIn', href: '#', icon: IconBrandLinkedin },
-      { label: 'YouTube', href: '#', icon: IconBrandYoutube },
-      { label: 'Instagram', href: '#', icon: IconBrandInstagram },
+      { label: 'Instagram', href: 'https://www.instagram.com/boqzel?igsh=M3B1NnY2Zm12ZmZj&utm_source=qr', icon: IconBrandInstagram },
+      { label: 'X', href: 'https://x.com/BoqZel', icon: IconBrandX },
+      { label: 'Gmail', href: 'mailto:boqzel676@gmail.com', icon: IconMail },
     ],
   },
 ];
@@ -73,16 +86,20 @@ export default function Footer() {
                 {section.title}
               </h4>
               <ul className="space-y-4">
-                {section.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-base font-medium text-boq-text-secondary hover:text-boq-text-primary hover:translate-x-1 inline-flex items-center gap-2 transition-all duration-300"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                  {section.links.map((link) => {
+                    const Icon = link.icon;
+                    return (
+                      <li key={link.label}>
+                        <Link
+                          href={link.href}
+                          className="text-base font-medium text-boq-text-secondary hover:text-boq-text-primary hover:translate-x-1 inline-flex items-center gap-2.5 transition-all duration-300 group/link"
+                        >
+                          {Icon && <Icon size={18} className="text-boq-text-muted group-hover/link:text-boq-teal-400 transition-colors" />}
+                          {link.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
               </ul>
             </div>
           ))}
@@ -120,10 +137,10 @@ export default function Footer() {
             <span>Digital Assets — 2026</span>
           </div>
           <div className="flex gap-8">
-            <Link href="#" className="text-sm font-medium text-boq-text-muted hover:text-boq-text-primary transition-colors">
+            <Link href="/privacy" className="text-sm font-medium text-boq-text-muted hover:text-boq-text-primary transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="text-sm font-medium text-boq-text-muted hover:text-boq-text-primary transition-colors">
+            <Link href="/terms" className="text-sm font-medium text-boq-text-muted hover:text-boq-text-primary transition-colors">
               Terms of Service
             </Link>
           </div>
@@ -132,8 +149,8 @@ export default function Footer() {
 
       {/* Massive Branding Text */}
       <div className="relative w-full overflow-hidden select-none pointer-events-none h-48 md:h-80 lg:h-96 -mt-12 md:-mt-24 lg:-mt-32">
-        <h2 className="absolute bottom-[-10%] left-1/2 -translate-x-1/2 text-[20vw] font-black tracking-tighter text-white/[0.03] leading-none text-center">
-          BoqZel
+        <h2 className="absolute bottom-[-10%] left-1/2 -translate-x-1/2 text-[20vw] font-black tracking-tighter text-white/[0.15] leading-none text-center">
+          BOQZEl
         </h2>
         <div className="absolute inset-0 bg-gradient-to-t from-[#050a14] via-transparent to-transparent h-full w-full" />
       </div>

@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPin, Calendar, Users, DollarSign, Sparkles, ArrowRight, ArrowLeft,
   Compass, Wallet, Crown, MoreVertical, Wand2,
-  AlertCircle, RefreshCw, Clock, Heart, Mountain, Sun, Banknote, Gem
+  AlertCircle, RefreshCw, Clock, Heart, Mountain, Sun, Banknote, Gem,
+  Globe, Palmtree, Landmark, Building2, Plane, Wind
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -23,18 +24,18 @@ const wizardSteps = [
 ];
 
 const popularDestinations = [
-  { name: 'Juba', country: 'South Sudan', emoji: '🌍' },
-  { name: 'Zanzibar', country: 'Tanzania', emoji: '🏝️' },
-  { name: 'Nairobi', country: 'Kenya', emoji: '🦁' },
-  { name: 'Cape Town', country: 'South Africa', emoji: '⛰️' },
-  { name: 'Marrakech', country: 'Morocco', emoji: '🕌' },
-  { name: 'Dubai', country: 'UAE', emoji: '🌆' },
+  { name: 'Juba', country: 'South Sudan', icon: Globe },
+  { name: 'Zanzibar', country: 'Tanzania', icon: Palmtree },
+  { name: 'Nairobi', country: 'Kenya', icon: Compass },
+  { name: 'Cape Town', country: 'South Africa', icon: Mountain },
+  { name: 'Marrakech', country: 'Morocco', icon: Landmark },
+  { name: 'Dubai', country: 'UAE', icon: Building2 },
 ];
 
 const tripTypes = [
-  { id: 'full', name: 'Full Trip', description: 'Complete travel with stays, flights & activities', icon: '✈️' },
-  { id: 'chill', name: 'Chill Trip', description: 'Relaxed outing with friends, short drive', icon: '🍃' },
-  { id: 'explore', name: 'Explore Freely', description: 'Flexible self-guided exploration', icon: '🧭' },
+  { id: 'full', name: 'Full Trip', description: 'Complete travel with stays, flights & activities', icon: Plane },
+  { id: 'chill', name: 'Chill Trip', description: 'Relaxed outing with friends, short drive', icon: Wind },
+  { id: 'explore', name: 'Explore Freely', description: 'Flexible self-guided exploration', icon: Compass },
 ];
 
 // Type for the AI-generated itinerary
@@ -357,7 +358,9 @@ export default function PlanPage() {
                           {popularDestinations.map((dest) => (
                             <button key={dest.name} onClick={() => setSelectedDest(dest.name)}
                               className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all text-left ${selectedDest === dest.name ? 'border-boq-teal-500/60 bg-boq-teal-500/12 shadow-sm shadow-boq-teal-500/20' : 'border-boq-border bg-boq-dark-600/60 hover:border-white/10 hover:bg-boq-dark-500/40'}`}>
-                              <span className="text-2xl">{dest.emoji}</span>
+                              <div className={`p-2.5 rounded-xl bg-boq-teal-500/10 flex-shrink-0 transition-colors ${selectedDest === dest.name ? 'bg-white/20' : ''}`}>
+                                <dest.icon size={20} className={selectedDest === dest.name ? 'text-white' : 'text-boq-teal-400'} />
+                              </div>
                               <div>
                                 <div className="text-sm font-bold text-boq-text-primary">{dest.name}</div>
                                 <div className="text-[10px] text-boq-text-muted">{dest.country}</div>
@@ -497,7 +500,9 @@ export default function PlanPage() {
                           {tripTypes.map((type) => (
                             <button key={type.id} onClick={() => setSelectedType(type.id)}
                               className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${selectedType === type.id ? 'border-boq-teal-500/60 bg-boq-teal-500/10' : 'border-boq-border bg-boq-dark-600/60 hover:border-white/10'}`}>
-                              <span className="text-2xl">{type.icon}</span>
+                              <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${selectedType === type.id ? 'bg-white/20' : 'bg-boq-teal-500/10'}`}>
+                                <type.icon size={24} className={selectedType === type.id ? 'text-white' : 'text-boq-teal-400'} />
+                              </div>
                               <div>
                                 <div className="text-sm font-bold text-boq-text-primary">{type.name}</div>
                                 <div className="text-xs text-boq-text-muted">{type.description}</div>

@@ -20,7 +20,7 @@ export const Card = React.memo(
       onMouseEnter={() => setHovered(index)}
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "rounded-[2rem] relative bg-boq-dark-900 overflow-hidden h-60 md:h-96 w-full transition-all duration-300 ease-out border border-white/5",
+        "rounded-3xl relative bg-boq-dark-900 overflow-hidden h-72 md:h-[28rem] w-full transition-all duration-300 ease-out border border-white/5",
         hovered !== null && hovered !== index && "blur-sm scale-[0.98] opacity-50"
       )}
     >
@@ -28,7 +28,7 @@ export const Card = React.memo(
         src={card.src}
         alt={card.title}
         fill
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className="object-cover absolute inset-0"
       />
       {/* Permanent bottom gradient for title legibility */}
@@ -74,7 +74,7 @@ export function FocusCards({ cards }: { cards: CardData[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
       {cards.map((card, index) => (
         <Card
           key={card.title}

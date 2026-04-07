@@ -17,7 +17,8 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req, @Res() res) {
-    const { access_token } = await this.authService.login(req.user);
+    const user = await this.authService.validateOAuthUser(req.user);
+    const { access_token } = await this.authService.login(user);
     res.redirect(`${this.configService.get('FRONTEND_URL')}/auth/callback?token=${access_token}`);
   }
 
@@ -28,7 +29,8 @@ export class AuthController {
   @Get('facebook/callback')
   @UseGuards(AuthGuard('facebook'))
   async facebookAuthRedirect(@Req() req, @Res() res) {
-    const { access_token } = await this.authService.login(req.user);
+    const user = await this.authService.validateOAuthUser(req.user);
+    const { access_token } = await this.authService.login(user);
     res.redirect(`${this.configService.get('FRONTEND_URL')}/auth/callback?token=${access_token}`);
   }
 }

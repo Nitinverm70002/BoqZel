@@ -18,12 +18,11 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   async validate(accessToken: string, refreshToken: string, profile: any, done: (err: any, user: any, info?: any) => void): Promise<any> {
     const { name, emails, id } = profile;
     const user = {
-      email: emails[0].value,
-      firstName: name.givenName,
-      lastName: name.familyName,
-      id,
+      email: emails[0]?.value,
+      name: name.givenName && name.familyName ? `${name.givenName} ${name.familyName}` : name.givenName || name.familyName || profile.displayName,
+      avatar: `https://graph.facebook.com/${id}/picture?type=large`,
+      providerId: id,
       provider: 'facebook',
-      accessToken,
     };
     done(null, user);
   }

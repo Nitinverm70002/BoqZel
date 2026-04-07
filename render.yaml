@@ -2,9 +2,9 @@ services:
   - type: web
     name: boqzel-backend
     runtime: node
-    buildCommand: npm install && npx prisma generate --schema=prisma/schema.prisma && npm run build
-    startCommand: npm run start:prod
-    rootDir: backend
+    buildCommand: ./build-backend.sh
+    startCommand: npm run start:prod -w backend
+    rootDir: .
     envVars:
       - key: NODE_VERSION
         value: 20

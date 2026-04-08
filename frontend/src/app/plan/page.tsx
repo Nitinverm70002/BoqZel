@@ -14,6 +14,7 @@ import AuthGuard from '@/components/auth/AuthGuard';
 import { travelStyles } from '@/data/mockData';
 import { CardSpotlight } from '@/components/ui/card-spotlight';
 import { BackgroundBeams } from '@/components/ui/background-beams';
+import { DatePicker } from '@/components/ui/date-picker';
 
 const wizardSteps = [
   { id: 'destination', label: 'Destination', icon: MapPin },
@@ -379,14 +380,20 @@ export default function PlanPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="text-xs font-semibold text-boq-text-muted mb-2 block uppercase tracking-wider">Departure</label>
-                            <input type="date" value={dates.departure} onChange={(e) => setDates((prev) => ({ ...prev, departure: e.target.value }))}
-                              className="w-full px-4 py-3.5 bg-boq-dark-600 border border-boq-border rounded-2xl text-sm text-boq-text-primary focus:outline-none focus:border-boq-teal-500 transition-all" />
+                            <DatePicker
+                              value={dates.departure}
+                              onChange={(value) => setDates((prev) => ({ ...prev, departure: value }))}
+                              placeholder="Select departure date"
+                            />
                           </div>
                           <div>
                             <label className="text-xs font-semibold text-boq-text-muted mb-2 block uppercase tracking-wider">Return</label>
-                            <input type="date" value={dates.returnDate} onChange={(e) => setDates((prev) => ({ ...prev, returnDate: e.target.value }))}
-                              min={dates.departure}
-                              className="w-full px-4 py-3.5 bg-boq-dark-600 border border-boq-border rounded-2xl text-sm text-boq-text-primary focus:outline-none focus:border-boq-teal-500 transition-all" />
+                            <DatePicker
+                              value={dates.returnDate}
+                              onChange={(value) => setDates((prev) => ({ ...prev, returnDate: value }))}
+                              minDate={dates.departure}
+                              placeholder="Select return date"
+                            />
                           </div>
                         </div>
                         <div className="mt-5 p-4 rounded-2xl bg-boq-teal-500/5 border border-boq-teal-500/15">

@@ -78,7 +78,7 @@ export default function LoginPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <a 
-              href={`${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
+              href="http://localhost:4000/auth/google"
               className="flex items-center justify-center gap-2 py-3 glass rounded-xl hover:bg-white/10 transition-all text-sm font-medium text-white border border-white/5 group"
             >
               <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
@@ -90,7 +90,7 @@ export default function LoginPage() {
               Google
             </a>
             <a 
-              href={`${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`}
+              href="http://localhost:4000/auth/facebook"
               className="flex items-center justify-center gap-2 py-3 glass rounded-xl hover:bg-white/10 transition-all text-sm font-medium text-white border border-white/5 group"
             >
               <svg className="w-5 h-5 text-[#1877F2] group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">

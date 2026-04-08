@@ -5,6 +5,7 @@ import CategoryCarousel from '@/components/home/CategoryCarousel';
 import AboutSection from '@/components/home/AboutSection';
 import FeatureSection from '@/components/home/FeatureSection';
 import ScrollSection from '@/components/home/ScrollSection';
+import FAQSection from '@/components/home/FAQSection';
 import CTASection from '@/components/home/CTASection';
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
         <AboutSection />
         <FeatureSection />
         <ScrollSection />
+        <FAQSection />
         <CTASection />
       </main>
       <Footer />

@@ -13,8 +13,6 @@ import { destinations, travelStyles, activities } from '@/data/mockData';
 import AuthGuard from '@/components/auth/AuthGuard';
 import { BackgroundBeams } from '@/components/ui/background-beams';
 
-const categories = ['All', 'Romantic', 'Adventure', 'Budget', 'Luxury', 'Cultural', 'Beach'];
-
 const IconMap: Record<string, any> = {
   Heart,
   Mountain,
@@ -24,8 +22,8 @@ const IconMap: Record<string, any> = {
 };
 
 export default function DiscoverPage() {
-  const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
 
   const toggleWishlist = (id: string) => {
@@ -36,6 +34,47 @@ export default function DiscoverPage() {
       return next;
     });
   };
+
+  const filteredDestinations = destinations.filter((dest) => {
+    const matchesSearch = dest.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         dest.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         dest.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!selectedStyle) return matchesSearch;
+    
+    const styleTags: Record<string, string[]> = {
+      romantic: ['romantic', 'beach'],
+      adventure: ['safari', 'wildlife', 'nature'],
+      weekend: ['urban', 'local', 'markets'],
+      luxury: ['luxury'],
+      budget: ['cultural', 'markets', 'local']
+    };
+    
+    const hasTag = (styleTags[selectedStyle] || []).some(tag => dest.tags.includes(tag));
+    return matchesSearch && hasTag;
+  });
+
+  const filteredActivities = activities.filter((act) => {
+    const matchesSearch = act.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         act.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         act.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!selectedStyle) return matchesSearch;
+    
+    const styleTypes: Record<string, string[]> = {
+      romantic: ['dining', 'relaxation'],
+      adventure: ['adventure', 'tour'],
+      weekend: ['tour', 'cultural', 'transport'],
+      budget: ['transport', 'cultural'],
+      luxury: ['relaxation', 'dining']
+    };
+    
+    const hasType = (styleTypes[selectedStyle] || []).includes(act.type);
+    const isBudgetMatch = selectedStyle === 'budget' ? act.priceFrom < 60 : true;
+    const isLuxuryMatch = selectedStyle === 'luxury' ? act.priceFrom >= 40 : true;
+    
+    return matchesSearch && hasType && isBudgetMatch && isLuxuryMatch;
+  });
 
   return (
     <AuthGuard>
@@ -74,14 +113,6 @@ export default function DiscoverPage() {
                 <SlidersHorizontal size={16} /> Filters
               </button>
             </motion.div>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="flex gap-2 mt-5 overflow-x-auto scrollbar-hide pb-2">
-              {categories.map((cat) => (
-                <button key={cat} onClick={() => setActiveCategory(cat)}
-                  className={`px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${activeCategory === cat ? 'bg-boq-teal-500 text-white shadow-lg shadow-boq-teal-500/30' : 'bg-boq-dark-500/80 text-boq-text-muted hover:text-boq-text-primary border border-boq-border'}`}>
-                  {cat}
-                </button>
-              ))}
-            </motion.div>
           </div>
         </div>
 
@@ -95,19 +126,21 @@ export default function DiscoverPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {travelStyles.map((style, idx) => {
                 const Icon = IconMap[style.icon] || Heart;
+                const isActive = selectedStyle === style.id;
                 return (
                   <motion.div key={style.id} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.06 }}
                     whileHover={{ y: -6 }}
-                    className="relative p-6 rounded-[2rem] bg-boq-dark-600/30 backdrop-blur-md border border-white/[0.03] hover:border-white/[0.08] cursor-pointer overflow-hidden group transition-all duration-500 shadow-xl shadow-black/20">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    onClick={() => setSelectedStyle(isActive ? null : style.id)}
+                    className={`relative p-6 rounded-[2rem] bg-boq-dark-600/30 backdrop-blur-md border cursor-pointer overflow-hidden group transition-all duration-500 shadow-xl shadow-black/20 ${isActive ? 'border-boq-teal-500/50 ring-1 ring-boq-teal-500/20 shadow-boq-teal-500/10' : 'border-white/[0.03] hover:border-white/[0.08]'}`}>
+                    <div className={`absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent transition-opacity ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
                     <div className="relative z-10 flex flex-col items-center text-center">
                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-all duration-500 relative">
-                        <div className="absolute inset-0 rounded-2xl bg-boq-teal-500/10 border border-boq-teal-500/20 backdrop-blur-sm" />
-                        <div className="absolute inset-0 rounded-2xl bg-boq-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[0_0_20px_rgba(13,148,136,0.4)]" />
-                        <Icon size={22} strokeWidth={1.5} className="relative z-10 text-boq-teal-400 group-hover:text-white transition-colors duration-500" />
+                        <div className={`absolute inset-0 rounded-2xl border backdrop-blur-sm transition-all duration-500 ${isActive ? 'bg-boq-teal-500 border-white/20' : 'bg-boq-teal-500/10 border-boq-teal-500/20'}`} />
+                        {!isActive && <div className="absolute inset-0 rounded-2xl bg-boq-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[0_0_20px_rgba(13,148,136,0.4)]" />}
+                        <Icon size={22} strokeWidth={1.5} className={`relative z-10 transition-colors duration-500 ${isActive ? 'text-white' : 'text-boq-teal-400 group-hover:text-white'}`} />
                       </div>
-                      <h3 className="text-xs font-black text-boq-text-primary mb-1.5 uppercase tracking-widest opacity-90 group-hover:opacity-100 transition-opacity">{style.name}</h3>
-                      <p className="text-[10px] text-boq-text-muted leading-relaxed font-medium group-hover:text-boq-text-secondary transition-colors px-2">{style.description}</p>
+                      <h3 className={`text-xs font-black mb-1.5 uppercase tracking-widest transition-all ${isActive ? 'text-boq-teal-400' : 'text-boq-text-primary opacity-90 group-hover:opacity-100'}`}>{style.name}</h3>
+                      <p className={`text-[10px] leading-relaxed font-medium transition-colors px-2 ${isActive ? 'text-boq-text-primary' : 'text-boq-text-muted group-hover:text-boq-text-secondary'}`}>{style.description}</p>
                     </div>
                   </motion.div>
                 );
@@ -127,7 +160,7 @@ export default function DiscoverPage() {
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {destinations.map((dest, idx) => {
+              {filteredDestinations.map((dest, idx) => {
                 const isFav = wishlist.has(dest.id);
                 return (
                   <motion.div key={dest.id} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.08 }}
@@ -176,7 +209,7 @@ export default function DiscoverPage() {
               <h2 className="text-xl font-black text-boq-text-primary">Trending Experiences</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {activities.slice(0, 6).map((act, idx) => (
+              {filteredActivities.slice(0, 6).map((act, idx) => (
                 <motion.div key={act.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.07 }}
                   className="flex items-center gap-4 glass rounded-2xl p-4 glow-card cursor-pointer border border-white/5 hover:border-boq-teal-500/15">
                   <div className="w-16 h-16 rounded-2xl bg-boq-dark-500 flex-shrink-0 overflow-hidden border border-white/5">

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Star, Clock, UserGroup } from 'lucide-react';
+import { Star, Clock, Users } from 'lucide-react';
 import { Experience } from '@/types';
 
 interface ExperienceCardProps {
@@ -38,6 +38,10 @@ export const ExperienceCard = ({ experience }: ExperienceCardProps) => {
           <div className="flex items-center gap-1.5 text-boq-text-muted">
             <Clock size={14} className="text-boq-teal-500" />
             <span className="text-[11px] font-medium">{experience.duration}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-boq-text-muted">
+            <Users size={14} className="text-boq-teal-500" />
+            <span className="text-[11px] font-medium">Group</span>
           </div>
           <div className="flex-1" />
           <div className="flex flex-col items-end">

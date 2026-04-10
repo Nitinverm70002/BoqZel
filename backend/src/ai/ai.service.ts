@@ -13,7 +13,9 @@ export class AiService {
       this.groq = new Groq({ apiKey });
       this.logger.log('Groq AI Service initialized successfully.');
     } else {
-      this.logger.warn('GROQ_API_KEY is not set. AI features will be disabled.');
+      this.logger.warn(
+        'GROQ_API_KEY is not set. AI features will be disabled.',
+      );
     }
   }
 
@@ -79,7 +81,9 @@ Rules:
       }
 
       const parsed = JSON.parse(content);
-      this.logger.log(`Generated itinerary: "${parsed.title}" with ${parsed.days?.length || 0} days`);
+      this.logger.log(
+        `Generated itinerary: "${parsed.title}" with ${parsed.days?.length || 0} days`,
+      );
       return parsed;
     } catch (error) {
       this.logger.error(`Error generating itinerary: ${error.message}`);
@@ -97,7 +101,8 @@ Rules:
         messages: [
           {
             role: 'system',
-            content: 'You are BoqZel AI, a helpful and premium travel concierge. You help users plan trips, find stays, and answer questions about destinations. Your tone is professional, sophisticated, and enthusiastic about travel.',
+            content:
+              'You are BoqZel AI, a helpful and premium travel concierge. You help users plan trips, find stays, and answer questions about destinations. Your tone is professional, sophisticated, and enthusiastic about travel.',
           },
           ...history,
           {
@@ -109,7 +114,10 @@ Rules:
         temperature: 0.8,
       });
 
-      return completion.choices[0].message.content || 'I apologize, but I could not generate a response.';
+      return (
+        completion.choices[0].message.content ||
+        'I apologize, but I could not generate a response.'
+      );
     } catch (error) {
       this.logger.error(`Error in chat: ${error.message}`);
       throw error;
@@ -136,7 +144,7 @@ Return ONLY valid JSON matching this exact structure:
     {
       "name": "String (Realistic name of hotel/resort)",
       "type": "String (Must be 'hotel', 'resort', 'apartment', or 'villa')",
-      "image": "String (Realistic Unsplash URL, e.g., 'https://images.unsplash.com/photo-1542314831-c6a4d27ce6a2?w=800&fit=crop'. Focus on African luxury, safari, or coastal aesthetics)",
+      "image": "String (Valid images.unsplash.com URL, e.g., 'https://images.unsplash.com/photo-1542314831-c6a4d27ce6a2?auto=format&fit=crop&q=80&w=800'. Focus on African luxury or coastal aesthetics)",
       "rating": "Number (4.5 to 5.0)",
       "reviewCount": "Number (50 to 500)",
       "pricePerNight": "Number (100 to 800)",
@@ -147,17 +155,17 @@ Return ONLY valid JSON matching this exact structure:
       "description": "String (Compelling 2-3 sentence description emphasizing African luxury, wildlife, or local culture)"
     }
   ]
-}`
+}`,
           },
           {
             role: 'user',
-            content: `Generate stays for ${location}`
-          }
+            content: `Generate stays for ${location}`,
+          },
         ],
         model: 'llama-3.3-70b-versatile',
         temperature: 0.7,
         max_tokens: 4096,
-        response_format: { type: 'json_object' }
+        response_format: { type: 'json_object' },
       });
 
       const content = completion.choices[0].message.content;
@@ -177,7 +185,9 @@ Return ONLY valid JSON matching this exact structure:
     }
 
     try {
-      this.logger.log(`Generating highly localized African car rentals for ${location}...`);
+      this.logger.log(
+        `Generating highly localized African car rentals for ${location}...`,
+      );
       const completion = await this.groq.chat.completions.create({
         messages: [
           {
@@ -202,17 +212,17 @@ Return ONLY valid JSON matching this exact structure:
       "verified": true
     }
   ]
-}`
+}`,
           },
           {
             role: 'user',
-            content: `Generate premium African car rentals for ${location}`
-          }
+            content: `Generate premium African car rentals for ${location}`,
+          },
         ],
         model: 'llama-3.3-70b-versatile',
         temperature: 0.7,
         max_tokens: 4096,
-        response_format: { type: 'json_object' }
+        response_format: { type: 'json_object' },
       });
 
       const content = completion.choices[0].message.content;
@@ -223,6 +233,223 @@ Return ONLY valid JSON matching this exact structure:
     } catch (error) {
       this.logger.error(`Error generating vehicles: ${error.message}`);
       throw error;
+    }
+  }
+
+  async generateTrendingDestinations(): Promise<any[]> {
+    if (!this.groq) {
+      throw new Error('AI Service not configured.');
+    }
+
+    try {
+      this.logger.log('Generating trending destinations via AI...');
+      const completion = await this.groq.chat.completions.create({
+        messages: [
+          {
+            role: 'system',
+            content: `You are BoqZel AI, a luxury travel expert.
+Identify 5 currently trending or "must-visit" destinations in Africa for the upcoming season.
+CRITICAL IMAGERY RULE: Provide a UNIQUE Unsplash image URL for EACH destination. Do not use the same image twice.
+VARY the landscapes: Include one Coastal/Beach, one Safari/Savanna, one Mountains/Highlands, one Cultural/Desert, and one Lush/Rainforest.
+Return ONLY valid JSON with this exact structure:
+{
+  "destinations": [
+    {
+      "name": "String",
+      "country": "String",
+      "image": "String (A REAL, unique high-quality Unsplash URL for this specific vibe)",
+      "rating": "Number (4.8 to 5.0)",
+      "reviewCount": "Number",
+      "verified": true,
+      "description": "String (Sensory experience snippet)",
+      "tags": ["Array of 4 vibe tags"],
+      "priceRange": "String",
+      "isTrending": true
+    }
+  ]
+}`,
+          },
+          {
+            role: 'user',
+            content:
+              'What are the top 5 trending destinations in Africa right now?',
+          },
+        ],
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.8,
+        response_format: { type: 'json_object' },
+      });
+
+      const content = completion.choices[0].message.content;
+      if (!content) throw new Error('AI returned empty trending response');
+      const parsed = JSON.parse(content);
+      return parsed.destinations || [];
+    } catch (error) {
+      this.logger.error(
+        `Error generating trending destinations: ${error.message}`,
+      );
+      return [];
+    }
+  }
+
+  async generateDestinations(query: string): Promise<any[]> {
+    if (!this.groq) {
+      throw new Error('AI Service not configured.');
+    }
+
+    try {
+      this.logger.log(`Generating destinations for query: ${query}...`);
+      const completion = await this.groq.chat.completions.create({
+        messages: [
+          {
+            role: 'system',
+            content: `You are BoqZel AI, a luxury travel expert for Africa.
+Generate a JSON object containing an array named "destinations" with 3 to 5 highly compelling travel destinations matching or related to the query: "${query}".
+Return ONLY valid JSON with this exact structure:
+{
+  "destinations": [
+    {
+      "name": "String (e.g., Zanzibar Island)",
+      "country": "String (e.g., Tanzania)",
+      "image": "String (Valid images.unsplash.com URL, e.g., 'https://images.unsplash.com/photo-1523731407965-2430cd12f5e4?auto=format&fit=crop&q=80&w=800')",
+      "rating": "Number (4.5 to 5.0)",
+      "reviewCount": "Number",
+      "verified": true,
+      "description": "String (Compelling 2-3 sentence overview)",
+      "tags": ["Array", "of", "3-4", "Tags"],
+      "priceRange": "String (e.g., $1,000 - $3,500)"
+    }
+  ]
+}`,
+          },
+          {
+            role: 'user',
+            content: `Find/Generate destinations for: ${query}`,
+          },
+        ],
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.7,
+        max_tokens: 4096,
+        response_format: { type: 'json_object' },
+      });
+
+      const content = completion.choices[0].message.content;
+      if (!content) throw new Error('AI returned empty destinations response');
+
+      const parsed = JSON.parse(content);
+      return parsed.destinations || [];
+    } catch (error) {
+      this.logger.error(`Error generating destinations: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async generateActivities(location: string): Promise<any[]> {
+    if (!this.groq) {
+      throw new Error('AI Service not configured.');
+    }
+
+    try {
+      this.logger.log(`Generating activities/experiences for: ${location}...`);
+      const completion = await this.groq.chat.completions.create({
+        messages: [
+          {
+            role: 'system',
+            content: `You are BoqZel AI, a luxury experience curator for Africa.
+Generate a JSON object containing an array named "activities" with 4 to 6 unique travel experiences for: "${location}".
+Return ONLY valid JSON with this exact structure:
+{
+  "activities": [
+    {
+      "name": "String (e.g., Nile River Sunset Cruise)",
+      "type": "String (Must be 'transport', 'dining', 'tour', 'adventure', 'cultural', or 'relaxation')",
+      "image": "String (Valid images.unsplash.com URL, e.g., 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&q=80&w=800')",
+      "rating": "Number (4.5 to 5.0)",
+      "priceFrom": "Number (20 to 500)",
+      "currency": "USD",
+      "duration": "String (e.g., 3 hours, Full day)",
+      "description": "String (Brief compelling description)",
+      "location": "String (Area or landmark within ${location})"
+    }
+  ]
+}`,
+          },
+          {
+            role: 'user',
+            content: `Generate unique activities for: ${location}`,
+          },
+        ],
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.7,
+        max_tokens: 4096,
+        response_format: { type: 'json_object' },
+      });
+
+      const content = completion.choices[0].message.content;
+      if (!content) throw new Error('AI returned empty activities response');
+
+      const parsed = JSON.parse(content);
+      return parsed.activities || [];
+    } catch (error) {
+      this.logger.error(`Error generating activities: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async enrichCityData(
+    cityName: string,
+    countryName: string,
+  ): Promise<{ description: string; tags: string[]; priceRange: string }> {
+    if (!this.groq) {
+      return {
+        description: `${cityName} is a beautiful destination in ${countryName}.`,
+        tags: ['travel', 'explore'],
+        priceRange: '$500 - $1,500',
+      };
+    }
+
+    try {
+      this.logger.log(
+        `Enriching city data with experience for ${cityName}, ${countryName}...`,
+      );
+      const completion = await this.groq.chat.completions.create({
+        messages: [
+          {
+            role: 'system',
+            content: `You are BoqZel AI, a luxury travel concierge.
+Generate a rich, sensory, and premium travel "experience" description for the city of ${cityName} in ${countryName}.
+Focus on:
+- The sensory vibe (smells, sights, sounds)
+- A unique "BoqZel" luxury perspective
+- What it feels like to spend a day there
+
+Return ONLY valid JSON with this exact structure:
+{
+  "description": "String (A compelling 3-4 sentence sensory experience summary, NOT a generic guide)",
+  "tags": ["Array", "of", "4", "specific", "vibe-based", "tags"],
+  "priceRange": "String (Estimated total trip cost range, e.g., $1,200 - $3,500)"
+}`,
+          },
+          {
+            role: 'user',
+            content: `Generate a premium experience description for ${cityName}, ${countryName}`,
+          },
+        ],
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.7,
+        response_format: { type: 'json_object' },
+      });
+
+      const content = completion.choices[0].message.content;
+      if (!content) throw new Error('AI returned empty enrichment response');
+      return JSON.parse(content);
+    } catch (error) {
+      this.logger.error(`Error enriching city data: ${error.message}`);
+      return {
+        description: `Experience the unique blend of luxury and heritage in ${cityName}, where every corner tells a story of ${countryName}'s rich culture.`,
+        tags: ['heritage', 'luxury', 'culture', 'discovery'],
+        priceRange: '$1,000 - $2,500',
+      };
     }
   }
 }

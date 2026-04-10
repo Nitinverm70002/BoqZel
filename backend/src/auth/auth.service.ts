@@ -33,7 +33,10 @@ export class AuthService {
 
       return user;
     } catch (error) {
-      this.logger.error(`Error in validateOAuthUser: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error in validateOAuthUser: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }

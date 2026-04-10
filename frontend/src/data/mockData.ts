@@ -41,6 +41,14 @@ export const travelStyles: TravelStyle[] = [
     color: '#6b7280',
     gradient: 'from-gray-600 to-gray-500',
   },
+  {
+    id: 'energetic',
+    name: 'Energetic',
+    description: 'Vibrant & active',
+    icon: 'Zap',
+    color: '#8b5cf6',
+    gradient: 'from-violet-600 to-purple-500',
+  },
 ];
 
 export const intentOptions: IntentOption[] = [

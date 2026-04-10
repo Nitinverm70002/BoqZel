@@ -52,6 +52,44 @@ model Vehicle {
   @@index([type])
 }
 
+model Destination {
+  id          String   @id @default(cuid())
+  name        String
+  country     String
+  countryCode String?  // ISO 2-letter country code
+  image       String
+  rating      Float
+  reviewCount Int
+  verified    Boolean  @default(false)
+  description String
+  tags        String[]
+  priceRange  String
+  safetyScore Float?    // From travel-advisory.info
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([country])
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // 'transport' | 'dining' | 'tour' | 'adventure' | 'cultural' | 'relaxation'
+  image       String
+  rating      Float
+  priceFrom   Int
+  currency    String   @default("USD")
+  duration    String
+  description String
+  location    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([location])
+  @@index([type])
+}
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
@@ -64,3 +102,4 @@ model User {
 
   @@index([email])
 }
+

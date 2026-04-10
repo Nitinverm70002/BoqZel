@@ -29,12 +29,6 @@ export default function CTASection() {
                 Create Your Account
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link
-                href="/discover"
-                className="w-full sm:w-auto px-8 py-4 glass text-boq-text-primary hover:bg-boq-dark-400 text-lg font-bold rounded-2xl transition-all duration-300 flex items-center justify-center"
-              >
-                Explore Destinations First
-              </Link>
             </div>
           </div>
         </CardSpotlight>

@@ -532,7 +532,7 @@ export default function PlanPage() {
                   <button onClick={handleNext}
                     className="flex items-center gap-2 px-8 py-3 bg-boq-teal-500 hover:bg-boq-teal-400 text-white font-black rounded-2xl transition-all shadow-lg shadow-boq-teal-500/25 hover:shadow-boq-teal-500/40">
                     {currentStep === wizardSteps.length - 1 ? (
-                      <><Sparkles size={16} /> Generate Itinerary</>
+                      <><Sparkles size={16} /> Start Planning</>
                     ) : (
                       <>Continue <ArrowRight size={16} /></>
                     )}

@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'source.unsplash.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'loremflickr.com',
       },
       {
@@ -20,6 +24,14 @@ const nextConfig: NextConfig = {
   },
   turbopack: {
     root: path.resolve(__dirname, '..'),
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:4000/api/:path*',
+      },
+    ];
   },
 };
 

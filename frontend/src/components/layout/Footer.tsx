@@ -25,14 +25,6 @@ interface FooterSection {
 
 const footerLinks: FooterSection[] = [
   {
-    title: 'Discover',
-    links: [
-      { label: 'AI Scout', href: '/plan' },
-      { label: 'Travel Guides', href: '/discover' },
-      { label: 'Destinations', href: '/discover' },
-    ],
-  },
-  {
     title: 'Resources',
     links: [
       { label: 'AI Planner', href: '/plan' },

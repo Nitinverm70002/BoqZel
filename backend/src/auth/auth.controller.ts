@@ -19,7 +19,9 @@ export class AuthController {
   async googleAuthRedirect(@Req() req, @Res() res) {
     const user = await this.authService.validateOAuthUser(req.user);
     const { access_token } = await this.authService.login(user);
-    res.redirect(`${this.configService.get('FRONTEND_URL')}/auth/callback?token=${access_token}`);
+    res.redirect(
+      `${this.configService.get('FRONTEND_URL')}/auth/callback?token=${access_token}`,
+    );
   }
 
   @Get('facebook')
@@ -31,6 +33,8 @@ export class AuthController {
   async facebookAuthRedirect(@Req() req, @Res() res) {
     const user = await this.authService.validateOAuthUser(req.user);
     const { access_token } = await this.authService.login(user);
-    res.redirect(`${this.configService.get('FRONTEND_URL')}/auth/callback?token=${access_token}`);
+    res.redirect(
+      `${this.configService.get('FRONTEND_URL')}/auth/callback?token=${access_token}`,
+    );
   }
 }

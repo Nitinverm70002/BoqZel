@@ -16,7 +16,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Boqzel — Plan, Book & Experience Your Perfect Trip",
   description:
-    "Discover amazing destinations, build custom itineraries, book stays, flights, and experiences — all in one platform. Plan your dream trip with Boqzel.",
+    "Build custom itineraries, book stays, flights, and experiences — all in one platform. Plan your dream trip with Boqzel.",
   keywords: [
     "travel planner",
     "trip booking",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Boqzel — Plan, Book & Experience Your Perfect Trip",
     description:
-      "Discover amazing destinations, build custom itineraries, book stays, flights, and experiences — all in one platform.",
+      "Build custom itineraries, book stays, flights, and experiences — all in one platform.",
     type: "website",
   },
   icons: {

@@ -15,16 +15,19 @@ import {
   Building2,
   Car,
   LogOut,
+  Package,
 } from 'lucide-react';
 
 const authLinks = [
-  { href: '/plan', label: 'AI Scout', icon: Sparkles },
+  { href: '/plan', label: 'Plan', icon: Sparkles },
   { href: '/stays', label: 'Stays', icon: Building2 },
-  { href: '/move', label: 'Move Around', icon: Car },
+  { href: '/move', label: 'Move', icon: Car },
   { href: '/discover', label: 'Discover', icon: Compass },
+  { href: '/book', label: 'Trip', icon: Package },
 ];
 
 const guestLinks = [
+  { href: '/discover', label: 'Discover' },
   { href: '/#about-section', label: 'About' },
   { href: '/#feature-section', label: 'Features' },
   { href: '/#vision-section', label: 'Visions' },

@@ -2,6 +2,7 @@ export interface Destination {
   id: string;
   name: string;
   country: string;
+  countryCode?: string;
   image: string;
   rating: number;
   reviewCount: number;
@@ -9,6 +10,34 @@ export interface Destination {
   description: string;
   tags: string[];
   priceRange: string;
+  averageNightlyPrice?: number;
+  safetyScore?: number;
+}
+
+export interface Mood {
+  id: string;
+  label: string;
+  icon: string;
+  color: string;
+}
+
+export interface Experience {
+  id: string;
+  title: string;
+  location: string;
+  duration: string;
+  pricePerPerson: number;
+  rating: number;
+  image: string;
+}
+
+export interface TrendingRanked {
+  id: string;
+  rank: number;
+  name: string;
+  thumbnail: string;
+  trend: string;
+  indicator: 'up' | 'down' | 'neutral';
 }
 
 export interface Stay {

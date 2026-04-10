@@ -9,8 +9,6 @@ import {
   useSpring,
 } from 'framer-motion';
 import Image from 'next/image';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 
 const categories = [
   {
@@ -181,19 +179,6 @@ export default function CategoryCarousel() {
         >
           Explore our most popular travel categories and AI-curated experiences designed for every type of explorer.
         </motion.p>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <Link
-            href="/discover"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-bold text-sm hover:bg-boq-orange-500 hover:text-white transition-all duration-300 group"
-          >
-            See more Experiences
-            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </motion.div>
       </div>
 
       <div 

@@ -8,6 +8,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { MoveModule } from './move/move.module';
 
 import { AuthModule } from './auth/auth.module';
+import { DiscoverModule } from './discover/discover.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthModule } from './auth/auth.module';
     PrismaModule,
     StaysModule,
     MoveModule,
+    DiscoverModule,
   ],
   controllers: [AppController],
   providers: [AppService],

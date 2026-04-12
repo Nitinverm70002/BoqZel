@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { TrendingUp, Flame, ChevronRight } from 'lucide-react';
+import { TrendingUp, Flame, type LucideIcon } from 'lucide-react';
 import { TrendingRanked as RTrending, Mood as TMood } from '@/types';
 import * as Icons from 'lucide-react';
 
@@ -42,8 +42,7 @@ export const TrendingRankedItem = ({ item }: { item: RTrending }) => {
 };
 
 export const MoodTile = ({ mood }: { mood: TMood }) => {
-  // @ts-ignore - Dynamic icon loading based on string name
-  const Icon = Icons[mood.icon as keyof typeof Icons] || Icons.Compass;
+  const Icon = (Icons[mood.icon as keyof typeof Icons] || Icons.Compass) as LucideIcon;
   
   return (
     <motion.button

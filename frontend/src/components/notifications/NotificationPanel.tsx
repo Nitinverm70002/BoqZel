@@ -12,10 +12,11 @@ import {
   AlertTriangle,
   Info,
   Lightbulb,
+  LucideIcon,
 } from 'lucide-react';
 import { Notification, NotificationType, useNotifications } from '@/context/NotificationContext';
 
-const TYPE_ICON_MAP: Record<NotificationType, React.ElementType> = {
+const TYPE_ICON_MAP: Record<NotificationType, LucideIcon> = {
   success: CheckCircle2,
   info: Info,
   warning: AlertTriangle,

@@ -2,12 +2,12 @@
 
 import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, CheckCircle2, AlertCircle, AlertTriangle, Info, Lightbulb } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, AlertTriangle, Info, Lightbulb, LucideIcon } from 'lucide-react';
 import { Notification, NotificationType, useNotifications } from '@/context/NotificationContext';
 
 const TYPE_CONFIG: Record<
   NotificationType,
-  { icon: React.ElementType; accent: string; bg: string; iconColor: string }
+  { icon: LucideIcon; accent: string; bg: string; iconColor: string }
 > = {
   success: {
     icon: CheckCircle2,

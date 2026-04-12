@@ -16,6 +16,7 @@ import {
 import { Destination, Experience, Mood, TrendingRanked } from '@/types';
 import { Compass, Sparkles, Map, Heart, Search } from 'lucide-react';
 import { BackgroundBeams } from '@/components/ui/background-beams';
+import { useActivityNotifications } from '@/hooks/useActivityNotifications';
 
 export default function DiscoverSection() {
   const [activeCategory, setActiveCategory] = useState('All');
@@ -31,6 +32,18 @@ export default function DiscoverSection() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<Destination[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+
+  const { notifyDiscoverTip } = useActivityNotifications();
+
+  // Fire first-visit tip once per session
+  useEffect(() => {
+    const key = 'boqzel_discover_tip_shown';
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, '1');
+      const t = setTimeout(() => notifyDiscoverTip(), 1200);
+      return () => clearTimeout(t);
+    }
+  }, [notifyDiscoverTip]);
 
   // Real-time search debounce
   useEffect(() => {

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
+import { useNotifications } from '@/context/NotificationContext';
 import {
   Bell,
   Menu,
@@ -38,6 +39,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { isLoggedIn, logout } = useAuth();
   const pathname = usePathname();
+  const { unreadCount, setPanelOpen, panelOpen } = useNotifications();
 
   const navLinks = isLoggedIn ? authLinks : guestLinks;
 
@@ -123,9 +125,23 @@ export default function Navbar() {
               </>
             ) : (
               <div className="flex items-center gap-3">
-                <button className="relative p-2 text-boq-text-secondary hover:text-boq-text-primary hover:bg-white/5 rounded-full transition-all">
+                <button
+                  onClick={() => setPanelOpen(!panelOpen)}
+                  className={`relative p-2 rounded-full transition-all ${
+                    panelOpen
+                      ? 'text-boq-teal-400 bg-boq-teal-500/10'
+                      : 'text-boq-text-secondary hover:text-boq-text-primary hover:bg-white/5'
+                  }`}
+                  id="nav-notifications-btn"
+                  aria-label="Open notifications"
+                >
                   <Bell size={20} />
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-boq-teal-400 rounded-full ring-2 ring-boq-dark-900" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-boq-teal-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-boq-teal-400 ring-2 ring-boq-dark-900" />
+                    </span>
+                  )}
                 </button>
                 <div className="h-8 w-[1px] bg-white/10" />
                 <button

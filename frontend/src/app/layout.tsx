@@ -40,6 +40,8 @@ export const metadata: Metadata = {
 };
 
 import { AuthProvider } from "@/context/AuthContext";
+import { NotificationProvider } from "@/context/NotificationContext";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
 export default function RootLayout({
   children,
@@ -52,9 +54,12 @@ export default function RootLayout({
       className={`${outfit.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="font-inter min-h-full flex flex-col bg-boq-dark-900 text-boq-text-primary">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+          <NotificationCenter />
+        </NotificationProvider>
       </body>
     </html>
   );

@@ -19,6 +19,7 @@ import { BackgroundBeams } from '@/components/ui/background-beams';
 import { StayCard } from '@/components/stays/StayCard';
 import { fetchStays } from '@/services/stays.service';
 import { Stay } from '@/types';
+import { useActivityNotifications } from '@/hooks/useActivityNotifications';
 
 const stayTypes = ['All', 'Hotels', 'Resorts', 'Apartments', 'Villas'];
 
@@ -33,6 +34,8 @@ export default function StaysPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sortBy, setSortBy] = useState('rating');
   const [showFilters, setShowFilters] = useState(false);
+  const { notifyStaysLoaded, notifyNoResults, notifyError, notifyWishlist } =
+    useActivityNotifications();
 
   // Debounce search query
   useEffect(() => {
@@ -46,13 +49,20 @@ export default function StaysPage() {
       setError(null);
       const data = await fetchStays(activeType, debouncedSearch, sortBy);
       setStays(data);
+      if (data.length > 0) {
+        notifyStaysLoaded(data.length, debouncedSearch || undefined);
+      } else {
+        notifyNoResults(debouncedSearch || undefined);
+      }
     } catch (err) {
       console.error(err);
-      setError('Could not connect to the booking server. Please try again.');
+      const msg = 'Could not connect to the booking server. Please try again.';
+      setError(msg);
+      notifyError(msg);
     } finally {
       setLoading(false);
     }
-  }, [activeType, debouncedSearch, sortBy]);
+  }, [activeType, debouncedSearch, sortBy, notifyStaysLoaded, notifyNoResults, notifyError]);
 
   useEffect(() => {
     loadStays();
@@ -61,8 +71,11 @@ export default function StaysPage() {
   const toggleWishlist = (id: string) => {
     setWishlist((prev) => {
       const next = new Set(prev);
+      const added = !next.has(id);
       if (next.has(id)) next.delete(id);
       else next.add(id);
+      const stay = stays.find((s) => s.id === id);
+      notifyWishlist(added, stay?.name);
       return next;
     });
   };

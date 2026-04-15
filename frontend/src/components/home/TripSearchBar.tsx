@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import FlightResults from './FlightResults';
 import {
   format,
   addMonths,
@@ -112,24 +113,11 @@ function MiniCalendar({
   );
 }
 
-// ─── City suggestions (static for now) ──────────────────────────────────────
-const CITIES = [
-  { code: 'JUB', city: 'Juba', country: 'South Sudan' },
-  { code: 'NBO', city: 'Nairobi', country: 'Kenya' },
-  { code: 'ADD', city: 'Addis Ababa', country: 'Ethiopia' },
-  { code: 'CMB', city: 'Colombo', country: 'Sri Lanka' },
-  { code: 'DXB', city: 'Dubai', country: 'UAE' },
-  { code: 'CPT', city: 'Cape Town', country: 'South Africa' },
-  { code: 'MRK', city: 'Marrakech', country: 'Morocco' },
-  { code: 'LOS', city: 'Lagos', country: 'Nigeria' },
-  { code: 'DAR', city: 'Dar es Salaam', country: 'Tanzania' },
-  { code: 'ZNZ', city: 'Zanzibar', country: 'Tanzania' },
-];
-
 interface CityOption {
   code: string;
-  city: string;
-  country: string;
+  name: string;
+  type?: string;
+  details?: string;
 }
 
 // ─── City input field ────────────────────────────────────────────────────────
@@ -145,6 +133,8 @@ function CityField({
   onChange: (c: CityOption) => void;
 }) {
   const [query, setQuery] = useState('');
+  const [results, setResults] = useState<CityOption[]>([]);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -156,14 +146,36 @@ function CityField({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const filtered = CITIES.filter(
-    (c) =>
-      c.city.toLowerCase().includes(query.toLowerCase()) ||
-      c.code.toLowerCase().includes(query.toLowerCase()) ||
-      c.country.toLowerCase().includes(query.toLowerCase())
-  );
+  // Fetch real airports from backend
+  useEffect(() => {
+    if (query.length < 2) {
+      setResults([]);
+      return;
+    }
 
-  const displayText = value ? `${value.city}` : '';
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`http://localhost:4000/trips/airports?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        // TripAdvisor API typically returns locations in a 'data' array 
+        // with properties like 'address' or 'display_address' and 'code'
+        setResults(data.slice(0, 5).map((item: any) => ({
+          code: item.airportCode || item.code || '???',
+          name: item.airportName || item.address || item.display_name || item.name || 'Unknown',
+          details: item.cityName || item.countryName || item.display_address || '',
+        })));
+      } catch (err) {
+        console.error('Failed to fetch airports', err);
+      } finally {
+        setLoading(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const displayText = value ? `${value.name}` : '';
 
   return (
     <div className="relative flex-1 min-w-0" ref={ref}>
@@ -208,36 +220,49 @@ function CityField({
       </div>
 
       <AnimatePresence>
-        {open && filtered.length > 0 && (
+        {open && (results.length > 0 || loading) && (
           <motion.div
             initial={{ opacity: 0, y: 8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-0 mt-2 w-64 bg-[#0a0f1a] border border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] z-50 overflow-hidden"
+            className="absolute top-full left-0 mt-2 w-72 bg-[#0a0f1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] z-50 overflow-hidden"
           >
-            {filtered.map((c) => (
-              <button
-                key={c.code}
-                type="button"
-                onClick={() => {
-                  onChange(c);
-                  setQuery('');
-                  setOpen(false);
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left group"
-              >
-                <div className="w-10 h-10 rounded-xl bg-boq-teal-500/10 border border-boq-teal-500/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[10px] font-black text-boq-teal-400">{c.code}</span>
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-boq-text-primary group-hover:text-boq-teal-400 transition-colors">
-                    {c.city}
+            {loading ? (
+              <div className="p-4 flex items-center gap-3">
+                <div className="w-4 h-4 border-2 border-boq-teal-500/30 border-t-boq-teal-400 rounded-full animate-spin" />
+                <span className="text-xs text-boq-text-muted">Searching airports...</span>
+              </div>
+            ) : (
+              results.map((c) => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => {
+                    onChange(c);
+                    setQuery('');
+                    setOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-boq-teal-500/10 border border-boq-teal-500/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-[10px] font-black text-boq-teal-400">
+                      {c.code}
+                    </span>
                   </div>
-                  <div className="text-[10px] text-boq-text-muted">{c.country}</div>
-                </div>
-              </button>
-            ))}
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-boq-text-primary group-hover:text-boq-teal-400 transition-colors truncate">
+                      {c.name}
+                    </div>
+                    {c.details && (
+                      <div className="text-[10px] text-boq-text-muted truncate">
+                        {c.details}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -318,6 +343,8 @@ function DateField({
   );
 }
 
+import { BackgroundBeams } from '@/components/ui/background-beams';
+
 // ─── Divider ─────────────────────────────────────────────────────────────────
 function Divider() {
   return <div className="w-px self-stretch bg-white/[0.07] my-2 flex-shrink-0" />;
@@ -330,6 +357,8 @@ export default function TripSearchBar() {
   const [depart, setDepart] = useState<Date | null>(null);
   const [returnDate, setReturnDate] = useState<Date | null>(null);
   const [swapping, setSwapping] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<any[] | null>(null);
 
   const handleSwap = () => {
     setSwapping(true);
@@ -340,23 +369,44 @@ export default function TripSearchBar() {
     }, 200);
   };
 
+  const handleSearch = async () => {
+    if (!from || !to || !depart) return;
+    setLoading(true);
+    setResults([]);
+    try {
+      const dateStr = format(depart, 'yyyy-MM-dd');
+      const res = await fetch(
+        `http://localhost:4000/trips/search?from=${from.code}&to=${to.code}&date=${dateStr}`
+      );
+      const data = await res.json();
+      setResults(data);
+    } catch (err) {
+      console.error('Search failed', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section
-      className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 mb-14"
+      className="relative z-20 overflow-hidden -mt-10 mb-14 py-10"
       id="trip-search-section"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.55, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {/* Label strip above the bar */}
-        <div className="flex items-center gap-2 mb-3 pl-1">
-          <Plane size={13} className="text-boq-teal-400" />
-          <span className="text-xs font-semibold text-boq-text-secondary tracking-wide">
-            Search Flights & Trips
-          </span>
-        </div>
+      <BackgroundBeams className="opacity-40" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {/* Label strip above the bar */}
+          <div className="flex items-center gap-2 mb-3 pl-1">
+            <Plane size={13} className="text-boq-teal-400" />
+            <span className="text-xs font-semibold text-boq-text-secondary tracking-wide">
+              Search Flights & Trips
+            </span>
+          </div>
 
         {/* The bar itself */}
         <div
@@ -443,16 +493,28 @@ export default function TripSearchBar() {
             <motion.button
               id="search-flights-btn"
               type="button"
+              disabled={loading || !from || !to || !depart}
+              onClick={handleSearch}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
-              className="flex items-center justify-center gap-2.5 px-8 h-14 bg-boq-teal-500 hover:bg-boq-teal-400 text-white font-bold text-sm rounded-xl transition-colors w-full lg:w-auto whitespace-nowrap"
+              className={`flex items-center justify-center gap-2.5 px-8 h-14 font-bold text-sm rounded-xl transition-all w-full lg:w-auto whitespace-nowrap ${
+                loading || !from || !to || !depart
+                  ? 'bg-white/5 text-boq-text-muted cursor-not-allowed'
+                  : 'bg-boq-teal-500 hover:bg-boq-teal-400 text-white'
+              }`}
               style={{
                 boxShadow:
-                  '0 0 20px rgba(20,184,166,0.25), 0 4px 12px rgba(0,0,0,0.3)',
+                  loading || !from || !to || !depart
+                    ? 'none'
+                    : '0 0 20px rgba(20,184,166,0.25), 0 4px 12px rgba(0,0,0,0.3)',
               }}
             >
-              <Search size={16} />
-              Search
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Search size={16} />
+              )}
+              {loading ? 'Searching...' : 'Search'}
             </motion.button>
           </div>
         </div>
@@ -461,9 +523,9 @@ export default function TripSearchBar() {
         <div className="flex items-center gap-2 mt-3 pl-1 flex-wrap">
           <span className="text-[11px] text-boq-text-muted">Popular:</span>
           {[
-            { label: 'Juba → Nairobi', f: CITIES[0], t: CITIES[1] },
-            { label: 'Juba → Dubai', f: CITIES[0], t: CITIES[4] },
-            { label: 'Nairobi → Cape Town', f: CITIES[1], t: CITIES[5] },
+            { label: 'Juba → Nairobi', f: { code: 'JUB', name: 'Juba' }, t: { code: 'NBO', name: 'Nairobi' } },
+            { label: 'Juba → Dubai', f: { code: 'JUB', name: 'Juba' }, t: { code: 'DXB', name: 'Dubai' } },
+            { label: 'Nairobi → Cape Town', f: { code: 'NBO', name: 'Nairobi' }, t: { code: 'CPT', name: 'Cape Town' } },
           ].map((q) => (
             <button
               key={q.label}
@@ -478,7 +540,11 @@ export default function TripSearchBar() {
             </button>
           ))}
         </div>
+
+        {/* ── SEARCH RESULTS ── */}
+        <FlightResults flights={results} />
       </motion.div>
+      </div>
     </section>
   );
 }

@@ -9,6 +9,7 @@ import { MoveModule } from './move/move.module';
 
 import { AuthModule } from './auth/auth.module';
 import { DiscoverModule } from './discover/discover.module';
+import { TripsModule } from './trips/trips.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { DiscoverModule } from './discover/discover.module';
     StaysModule,
     MoveModule,
     DiscoverModule,
+    TripsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

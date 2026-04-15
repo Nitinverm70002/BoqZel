@@ -452,4 +452,75 @@ Return ONLY valid JSON with this exact structure:
       };
     }
   }
+
+  async generateFlights(
+    origin: string,
+    destination: string,
+    date: string,
+  ): Promise<any[]> {
+    if (!this.groq) {
+      throw new Error('AI Service not configured.');
+    }
+
+    try {
+      this.logger.log(`Generating AI flights for ${origin} to ${destination}...`);
+      const completion = await this.groq.chat.completions.create({
+        messages: [
+          {
+            role: 'system',
+            content: `You are the core intelligence for the BoqZel Africa Travel API.
+Generate a JSON object containing an array named "itineraries" with 3 to 5 highly realistic flight options for the flight search: from "${origin}" to "${destination}" on "${date}".
+CRITICAL RULE: The airlines should be realistic for Africa and the Middle East (e.g. Ethiopian Airlines, Kenya Airways, Emirates, Qatar Airways, FlyDubai, Uganda Airlines).
+Return ONLY valid JSON matching this exact structure:
+{
+  "itineraries": [
+    {
+      "id": "String (unique)",
+      "purchaseLinks": [
+        {
+          "totalPrice": "Number (Realistic price in USD, e.g. 150 to 900)"
+        }
+      ],
+      "legs": [
+        {
+          "durationInMinutes": "Number (e.g. 120, 345)",
+          "stopCount": "Number (0, 1, or 2)",
+          "segments": [
+            {
+              "originAirportCode": "${origin}",
+              "destinationAirportCode": "${destination}",
+              "departureTime": "String (ISO format or 2026-04-15T10:30:00)",
+              "arrivalTime": "String (ISO format)",
+              "marketingAirline": {
+                "name": "String (e.g. Ethiopian Airlines)"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}`,
+          },
+          {
+            role: 'user',
+            content: `Generate realistic flights from ${origin} to ${destination} on ${date}`,
+          },
+        ],
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.7,
+        max_tokens: 4096,
+        response_format: { type: 'json_object' },
+      });
+
+      const content = completion.choices[0].message.content;
+      if (!content) throw new Error('AI returned empty flights response');
+
+      const parsed = JSON.parse(content);
+      return parsed.itineraries || [];
+    } catch (error) {
+      this.logger.error(`Error generating flights: ${error.message}`);
+      throw error;
+    }
+  }
 }

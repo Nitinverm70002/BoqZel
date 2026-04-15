@@ -212,9 +212,9 @@ function CityField({
             </span>
           )}
         </div>
-        {value && (
+        {value && value.details && (
           <span className="text-[10px] text-boq-text-muted mt-0.5 pl-5">
-            {value.country}
+            {value.details}
           </span>
         )}
       </div>

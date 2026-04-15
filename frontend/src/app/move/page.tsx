@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Car, User, Calendar, MapPin, Shield, Fuel,
   Navigation, ArrowRight, Star, Clock, AlertTriangle,
-  CheckCircle, Route, Loader2
+  CheckCircle, Route, Loader2, ChevronRight, ChevronLeft
 } from 'lucide-react';
+import {
+  format, addMonths, subMonths, startOfMonth, endOfMonth,
+  startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth,
+  isSameDay, isToday, isBefore, startOfDay
+} from 'date-fns';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import AuthGuard from '@/components/auth/AuthGuard';
@@ -30,10 +35,84 @@ const routeSuggestions = [
   { name: 'Juba City Loop', distance: '25 km', duration: '1h', difficulty: 'Easy', highlights: ['Markets', 'Restaurants', 'Cultural sites'] },
 ];
 
+function MoveMiniCalendar({ selected, onSelect, minDate }: { selected: Date | null; onSelect: (d: Date) => void; minDate?: Date; }) {
+  const [currentMonth, setCurrentMonth] = useState(selected ?? new Date());
+  const monthStart = startOfMonth(currentMonth);
+  const days = eachDayOfInterval({ start: startOfWeek(monthStart), end: endOfWeek(endOfMonth(currentMonth)) });
+
+  return (
+    <div className="p-4 w-72">
+      <div className="flex justify-between items-center mb-4">
+        <button type="button" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1.5 rounded-lg hover:bg-white/10 text-boq-text-secondary hover:text-boq-text-primary transition-colors">
+          <ChevronLeft size={16} />
+        </button>
+        <span className="text-sm font-bold text-boq-text-primary">{format(currentMonth, 'MMMM yyyy')}</span>
+        <button type="button" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1.5 rounded-lg hover:bg-white/10 text-boq-text-secondary hover:text-boq-text-primary transition-colors">
+          <ChevronRight size={16} />
+        </button>
+      </div>
+      <div className="grid grid-cols-7 text-center mb-2">
+        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
+          <div key={d} className="text-[10px] font-bold text-boq-text-muted uppercase tracking-wider">{d}</div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 text-center gap-y-1">
+        {days.map((day, idx) => {
+          const isDisabled = minDate ? isBefore(startOfDay(day), startOfDay(minDate)) : isBefore(startOfDay(day), startOfDay(new Date()));
+          const isSelected = selected ? isSameDay(day, selected) : false;
+          const inMonth = isSameMonth(day, monthStart);
+          return (
+            <button key={idx} type="button" disabled={isDisabled} onClick={() => onSelect(day)}
+              className={`w-8 h-8 mx-auto flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${
+                !inMonth ? 'text-boq-text-muted/30' : isDisabled ? 'text-boq-text-muted/40 cursor-not-allowed' :
+                isSelected ? 'bg-boq-teal-500/15 text-boq-teal-400 border border-boq-teal-400 shadow-sm shadow-boq-teal-500/20' :
+                isToday(day) ? 'bg-boq-dark-500 text-boq-teal-400 border border-boq-teal-500/30' : 'text-boq-text-primary hover:bg-white/10'
+              }`}>
+              {format(day, 'd')}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MoveDateField({ label, value, onChange, minDate, placeholder }: { label: string; value: Date | null; onChange: (d: Date) => void; minDate?: Date; placeholder: string; }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div className={`relative ${open ? 'z-50' : 'z-10'}`} ref={ref}>
+      <label className="text-xs font-bold text-boq-text-muted mb-2 block uppercase tracking-wider">{label}</label>
+      <div className="relative bg-boq-dark-600 border border-boq-border rounded-xl cursor-pointer focus-within:border-boq-teal-500 transition-all flex items-center px-4 py-3" onClick={() => setOpen((o) => !o)}>
+        <Calendar size={14} className="text-boq-teal-400 mr-2" />
+        <span className={`text-sm font-semibold flex-1 ${value ? 'text-boq-text-primary' : 'text-boq-text-muted'}`}>
+            {value ? format(value, 'MM/dd/yyyy') : placeholder}
+        </span>
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.97 }} transition={{ duration: 0.15 }}
+            className="absolute top-[calc(100%+8px)] left-0 bg-[#0a0f1a] border border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] z-[100]">
+            <MoveMiniCalendar selected={value} minDate={minDate} onSelect={(d) => { onChange(d); setOpen(false); }} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function MovePage() {
   const [driveMode, setDriveMode] = useState('self');
   const [duration, setDuration] = useState('Daily');
   const [location, setLocation] = useState('Juba');
+  const [pickupDate, setPickupDate] = useState<Date | null>(null);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [debouncedLocation, setDebouncedLocation] = useState('Juba');
@@ -93,7 +172,13 @@ export default function MovePage() {
             {/* Left: Search Options */}
             <div className="lg:col-span-2 space-y-6">
               {/* Drive Options */}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass rounded-3xl p-6 border border-white/5">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                className="relative z-20 rounded-3xl p-6 border border-white/5"
+                style={{
+                  background: 'rgba(15, 23, 42, 0.4)',
+                  backdropFilter: 'blur(20px) saturate(180%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(180%)'
+                }}>
                 <h2 className="text-base font-black text-boq-text-primary mb-5">How do you want to move?</h2>
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   {driveOptions.map((opt) => {
@@ -141,12 +226,12 @@ export default function MovePage() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-boq-text-muted mb-2 block uppercase tracking-wider">Pickup Date</label>
-                    <div className="relative">
-                      <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-boq-teal-400" />
-                      <input type="date"
-                        className="w-full pl-9 pr-4 py-3 bg-boq-dark-600 border border-boq-border rounded-xl text-sm text-boq-text-primary focus:outline-none focus:border-boq-teal-500 transition-all" />
-                    </div>
+                    <MoveDateField 
+                      label="Pickup Date"
+                      placeholder="dd/mm/yyyy"
+                      value={pickupDate}
+                      onChange={setPickupDate}
+                    />
                   </div>
                 </div>
                 <button className="mt-5 w-full flex items-center justify-center gap-2 py-3.5 bg-boq-teal-500 hover:bg-boq-teal-400 text-white font-black rounded-2xl transition-all shadow-lg shadow-boq-teal-500/25">

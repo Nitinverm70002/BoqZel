@@ -1,7 +1,6 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/home/HeroSection';
-import TripSearchBar from '@/components/home/TripSearchBar';
 import CategoryCarousel from '@/components/home/CategoryCarousel';
 import AboutSection from '@/components/home/AboutSection';
 import FeatureSection from '@/components/home/FeatureSection';
@@ -15,7 +14,6 @@ export default function Home() {
       <Navbar />
       <main className="flex-1">
         <HeroSection />
-        <TripSearchBar />
         <CategoryCarousel />
         <AboutSection />
         <FeatureSection />

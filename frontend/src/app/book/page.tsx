@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plane, Building, Car, Map, Utensils, Star, Clock,
   ArrowRight, Package, Sparkles, ChevronRight, Search,
-  ChevronDown, Calendar, ArrowRightLeft, ChevronLeft
+  ChevronDown, Calendar, ArrowRightLeft, ChevronLeft, MapPin, X, Users, Tag, Check, Minus, Plus
 } from 'lucide-react';
 import {
   format, addMonths, subMonths, startOfMonth, endOfMonth,
@@ -106,7 +106,283 @@ function FlightMiniCalendar({ selected, onSelect, minDate }: { selected: Date | 
   );
 }
 
-function FlightDateField({ label, value, onChange, minDate, placeholder }: { label: string; value: Date | null; onChange: (d: Date) => void; minDate?: Date; placeholder: string; }) {
+function TripTypeSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const options = ['Round Trip', 'One Way', 'Multi-City'];
+
+  return (
+    <div className="relative" ref={ref}>
+      <button type="button" onClick={() => setOpen(!open)} className="flex items-center gap-2 text-sm text-boq-text-primary hover:text-boq-teal-400 font-semibold transition-colors">
+        {value} <ChevronDown size={14} className={`text-boq-text-muted transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.95 }} transition={{ duration: 0.15 }}
+            className="absolute top-full left-0 mt-2 py-2 w-40 bg-[#0a0f1a]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] z-50 overflow-hidden">
+            {options.map((opt) => (
+              <button key={opt} onClick={() => { onChange(opt); setOpen(false); }} className={`w-full text-left px-4 py-2 text-sm font-semibold transition-colors flex items-center justify-between ${value === opt ? 'text-boq-teal-400 bg-boq-teal-500/10' : 'text-boq-text-primary hover:bg-white/5'}`}>
+                {opt}
+                {value === opt && <Check size={14} />}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function PassengerClassSelect({ passengers, setPassengers, flightClass, setFlightClass }: { passengers: number; setPassengers: (n: number) => void; flightClass: string; setFlightClass: (s: string) => void; }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const classes = ['Economy', 'Premium', 'Business', 'First'];
+
+  return (
+    <div className="relative" ref={ref}>
+      <button type="button" onClick={() => setOpen(!open)} className="flex items-center gap-2 text-sm text-boq-text-primary hover:text-boq-teal-400 font-semibold transition-colors">
+        {passengers} Passenger{passengers > 1 ? 's' : ''}, {flightClass} <ChevronDown size={14} className={`text-boq-text-muted transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.95 }} transition={{ duration: 0.15 }}
+            className="absolute top-full left-0 mt-2 p-4 w-64 bg-[#0a0f1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] z-50">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-bold text-boq-text-primary">Passengers</span>
+              <div className="flex items-center gap-3">
+                <button type="button" onClick={() => setPassengers(Math.max(1, passengers - 1))} className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors" disabled={passengers <= 1}>
+                  <Minus size={14} />
+                </button>
+                <span className="text-sm font-black w-3 text-center">{passengers}</span>
+                <button type="button" onClick={() => setPassengers(Math.min(9, passengers + 1))} className="w-8 h-8 rounded-full border border-boq-teal-500/30 text-boq-teal-400 flex items-center justify-center hover:bg-boq-teal-500/10 transition-colors">
+                  <Plus size={14} />
+                </button>
+              </div>
+            </div>
+            <div className="w-full h-px bg-white/10 my-3" />
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-boq-text-muted uppercase tracking-wider pl-2 mb-2 block mt-3">Cabin Class</span>
+              {classes.map((cls) => (
+                <button key={cls} onClick={() => setFlightClass(cls)} className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold transition-colors flex items-center justify-between ${flightClass === cls ? 'text-boq-teal-400 bg-boq-teal-500/10 border border-boq-teal-500/20' : 'text-boq-text-primary hover:bg-white/5 border border-transparent'}`}>
+                  {cls}
+                  {flightClass === cls && <Check size={14} />}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function PromoCodeSelect({ promoCode, setPromoCode }: { promoCode: string; setPromoCode: (s: string) => void; }) {
+  const [open, setOpen] = useState(false);
+  const [tempCode, setTempCode] = useState(promoCode);
+  const ref = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleApply = () => {
+    setPromoCode(tempCode.toUpperCase());
+    setOpen(false);
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button type="button" onClick={() => setOpen(!open)} className={`flex items-center gap-2 text-sm font-semibold transition-colors ${promoCode ? 'text-boq-teal-400' : 'text-boq-text-primary hover:text-boq-teal-400'}`}>
+        <Tag size={14} className={promoCode ? 'text-boq-teal-400' : 'text-boq-text-muted'} />
+        {promoCode ? `Promo: ${promoCode}` : 'Promo Code'}
+        {!promoCode && <ChevronDown size={14} className={`text-boq-text-muted transition-transform ${open ? 'rotate-180' : ''}`} />}
+      </button>
+      <AnimatePresence>
+        {open && (
+           <motion.div initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.95 }} transition={{ duration: 0.15 }}
+            className="absolute top-full left-0 lg:left-auto lg:-right-4 mt-2 p-3 w-64 bg-[#0a0f1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] z-50">
+            <label className="text-[10px] font-bold text-boq-text-muted uppercase tracking-wider mb-2 block px-1">Promo Details</label>
+            <div className="flex gap-2">
+              <input type="text" value={tempCode} onChange={(e) => setTempCode(e.target.value)} placeholder="e.g. BOQZEL20" className="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white font-semibold focus:outline-none focus:border-boq-teal-500 uppercase placeholder:normal-case" />
+              <button disabled={!tempCode} onClick={handleApply} className="bg-boq-teal-500 hover:bg-boq-teal-400 text-white px-4 py-2 rounded-xl text-sm font-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Apply</button>
+            </div>
+            {promoCode && (
+              <button onClick={() => { setPromoCode(''); setTempCode(''); setOpen(false); }} className="w-full mt-2 text-xs font-semibold text-rose-400 hover:text-rose-300 py-1 transition-colors">Remove Promo</button>
+            )}
+           </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+interface CityOption {
+  code: string;
+  name: string;
+  type?: string;
+  details?: string;
+}
+
+function CityField({
+  label,
+  placeholder,
+  value,
+  onChange,
+}: {
+  label: string;
+  placeholder: string;
+  value: CityOption | null;
+  onChange: (c: CityOption) => void;
+}) {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<CityOption[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  useEffect(() => {
+    if (query.length < 2) {
+      setResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const res = await fetch(`${apiUrl}/trips/airports?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        setResults(data.slice(0, 5).map((item: any) => ({
+          code: item.airportCode || item.code || '???',
+          name: item.airportName || item.address || item.display_name || item.name || 'Unknown',
+          details: item.cityName || item.countryName || item.display_address || '',
+        })));
+      } catch (err) {
+        console.error('Failed to fetch airports', err);
+      } finally {
+        setLoading(false);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const displayText = value ? `${value.name}` : '';
+
+  return (
+    <div className="relative flex-1 min-w-0" ref={ref}>
+      <div
+        className="flex flex-col px-4 py-3 cursor-pointer group h-full justify-center"
+        onClick={() => setOpen(true)}
+      >
+        <span className="text-[10px] uppercase tracking-[0.12em] font-bold text-boq-text-muted mb-1">
+          {label}
+        </span>
+        <div className="flex items-center gap-2">
+          <MapPin size={14} className="text-boq-teal-400 flex-shrink-0" />
+          {open ? (
+            <input
+              autoFocus
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={placeholder}
+              className="bg-transparent text-sm font-semibold text-boq-text-primary placeholder:text-boq-text-muted focus:outline-none w-full"
+            />
+          ) : (
+            <span
+              className={`text-sm font-semibold truncate ${
+                displayText ? 'text-boq-text-primary' : 'text-boq-text-muted'
+              }`}
+            >
+              {displayText || placeholder}
+            </span>
+          )}
+          {value && !open && (
+            <span className="text-[10px] font-bold text-boq-teal-400 bg-boq-teal-500/10 px-1.5 py-0.5 rounded-md flex-shrink-0">
+              {value.code}
+            </span>
+          )}
+        </div>
+        {value && value.details && (
+          <span className="text-[10px] text-boq-text-muted mt-0.5 pl-5">
+            {value.details}
+          </span>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {open && (results.length > 0 || loading) && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full left-0 mt-2 w-72 bg-[#0a0f1a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] z-[100] overflow-hidden"
+          >
+            {loading ? (
+              <div className="p-4 flex items-center gap-3">
+                <div className="w-4 h-4 border-2 border-boq-teal-500/30 border-t-boq-teal-400 rounded-full animate-spin" />
+                <span className="text-xs text-boq-text-muted">Searching airports...</span>
+              </div>
+            ) : (
+              results.map((c) => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => {
+                    onChange(c);
+                    setQuery('');
+                    setOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-boq-teal-500/10 border border-boq-teal-500/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-[10px] font-black text-boq-teal-400">
+                      {c.code}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-boq-text-primary group-hover:text-boq-teal-400 transition-colors truncate">
+                      {c.name}
+                    </div>
+                    {c.details && (
+                      <div className="text-[10px] text-boq-text-muted truncate">
+                        {c.details}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function FlightDateField({ label, value, onChange, minDate }: { label: string; value: Date | null; onChange: (d: Date) => void; minDate?: Date; }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -117,26 +393,45 @@ function FlightDateField({ label, value, onChange, minDate, placeholder }: { lab
   }, []);
 
   return (
-    <div className={`flex-1 relative flex flex-col justify-center ${open ? 'z-50' : 'z-10'}`} ref={ref}>
-      <div className="relative bg-boq-dark-600 border border-boq-border rounded-2xl p-3 focus-within:border-boq-teal-500 transition-all cursor-pointer h-full flex flex-col justify-center" onClick={() => setOpen((o) => !o)}>
-        <label className="text-[10px] font-bold text-boq-text-muted uppercase tracking-wider mb-0.5 cursor-pointer">{label}</label>
-        <div className="flex items-center justify-between">
-            <span className={`text-sm font-semibold ${value ? 'text-boq-text-primary' : 'text-boq-text-muted'}`}>
-                {value ? format(value, 'MM/dd/yyyy') : placeholder}
-            </span>
-            <Calendar size={14} className="text-boq-text-muted" />
+    <div className="relative flex-1" ref={ref}>
+      <div
+        className="flex flex-col px-4 py-3 cursor-pointer h-full justify-center"
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span className="text-[10px] uppercase tracking-[0.12em] font-bold text-boq-text-muted mb-1">
+          {label}
+        </span>
+        <div className="flex items-center gap-2">
+          <Calendar size={14} className="text-boq-teal-400 flex-shrink-0" />
+          <span
+            className={`text-sm font-semibold ${
+              value ? 'text-boq-text-primary' : 'text-boq-text-muted'
+            }`}
+          >
+            {value ? format(value, 'dd MMM yyyy') : 'Select date'}
+          </span>
         </div>
+        {value && (
+          <span className="text-[10px] text-boq-text-muted mt-0.5 pl-5">
+            {format(value, 'EEEE')}
+          </span>
+        )}
       </div>
+
       <AnimatePresence>
         {open && (
-          <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.97 }} transition={{ duration: 0.15 }}
-            className="absolute top-[calc(100%+8px)] left-0 bg-[#0a0f1a] border border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] z-[100]">
-            <FlightMiniCalendar selected={value} minDate={minDate} onSelect={(d) => { onChange(d); setOpen(false); }} />
-          </motion.div>
+           <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.97 }} transition={{ duration: 0.15 }}
+             className="absolute top-[calc(100%+8px)] left-0 bg-[#0a0f1a] border border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] z-[100]">
+             <FlightMiniCalendar selected={value} minDate={minDate} onSelect={(d) => { onChange(d); setOpen(false); }} />
+           </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
+}
+
+function Divider() {
+  return <div className="w-px self-stretch bg-white/[0.07] my-2 flex-shrink-0" />;
 }
 
 export default function BookPage() {
@@ -145,11 +440,27 @@ export default function BookPage() {
   const [returnDate, setReturnDate] = useState<Date | null>(null);
 
   // Search state
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+  const [from, setFrom] = useState<CityOption | null>(null);
+  const [to, setTo] = useState<CityOption | null>(null);
+  const [swapping, setSwapping] = useState(false);
   const [flights, setFlights] = useState<Flight[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+
+  const [tripType, setTripType] = useState('Round Trip');
+  const [passengers, setPassengers] = useState(1);
+  const [flightClass, setFlightClass] = useState('Economy');
+  const [promoCode, setPromoCode] = useState('');
+
+  const handleSwap = () => {
+    setSwapping(true);
+    setTimeout(() => {
+      setFrom(to);
+      setTo(from);
+      setSwapping(false);
+    }, 200);
+  };
   const { notify } = useNotifications();
 
   const handleBookItem = (type: string, name: string) => {
@@ -166,10 +477,11 @@ export default function BookPage() {
 
     setIsLoading(true);
     setSearchError(null);
+    setHasSearched(true);
     try {
       const dateStr = format(departDate, 'yyyy-MM-dd');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-      const response = await fetch(`${apiUrl}/trips/search?from=${from}&to=${to}&date=${dateStr}`);
+      const response = await fetch(`${apiUrl}/trips/search?from=${from.code}&to=${to.code}&date=${dateStr}&passengers=${passengers}&class=${flightClass.toLowerCase()}&tripType=${encodeURIComponent(tripType)}&promo=${encodeURIComponent(promoCode)}`);
       const data = await response.json();
 
       if (Array.isArray(data)) {
@@ -182,8 +494,8 @@ export default function BookPage() {
           return {
             id: item.id || Math.random().toString(36).substr(2, 9),
             airline: segment.marketingAirline?.name || item.airline || 'Unknown Airline',
-            from: segment.originAirportCode || from || '???',
-            to: segment.destinationAirportCode || to || '???',
+            from: segment.originAirportCode || from.code || '???',
+            to: segment.destinationAirportCode || to.code || '???',
             departureTime: segment.departureTime ? format(new Date(segment.departureTime), 'HH:mm') : (item.departureTime || '00:00'),
             arrivalTime: segment.arrivalTime ? format(new Date(segment.arrivalTime), 'HH:mm') : (item.arrivalTime || '00:00'),
             duration: leg.durationInMinutes ? `${Math.floor(leg.durationInMinutes / 60)}h ${leg.durationInMinutes % 60}m` : (item.duration || '2h'),
@@ -267,79 +579,113 @@ export default function BookPage() {
                 }}
               >
                 {/* Top Row Links/Selects */}
-                <div className="flex flex-wrap items-center gap-4 mb-5">
-                  <button className="flex items-center gap-2 text-sm text-boq-text-primary hover:text-boq-teal-400 font-semibold transition-colors">
-                    Round Trip <ChevronDown size={14} className="text-boq-text-muted" />
-                  </button>
+                <div className="flex flex-wrap items-center gap-4 mb-5 shadow-none z-30 relative">
+                  <TripTypeSelect value={tripType} onChange={setTripType} />
                   <div className="w-px h-4 bg-white/10" />
-                  <button className="flex items-center gap-2 text-sm text-boq-text-primary hover:text-boq-teal-400 font-semibold transition-colors">
-                    1 Passenger, Economy Class <ChevronDown size={14} className="text-boq-text-muted" />
-                  </button>
+                  <PassengerClassSelect passengers={passengers} setPassengers={setPassengers} flightClass={flightClass} setFlightClass={setFlightClass} />
                   <div className="w-px h-4 bg-white/10" />
-                  <button className="flex items-center gap-2 text-sm text-boq-text-primary hover:text-boq-teal-400 font-semibold transition-colors">
-                    Promo Code <ChevronDown size={14} className="text-boq-text-muted" />
-                  </button>
+                  <PromoCodeSelect promoCode={promoCode} setPromoCode={setPromoCode} />
                 </div>
 
-                {/* Inputs Row */}
-                <div className="flex flex-col lg:flex-row gap-3">
-                  {/* FROM */}
-                  <div className="flex-1 relative bg-boq-dark-600 border border-boq-border rounded-2xl p-3 focus-within:border-boq-teal-500 transition-all flex flex-col justify-center">
-                    <label className="text-[10px] font-bold text-boq-text-muted uppercase tracking-wider mb-0.5">From</label>
-                    <input 
-                      type="text" 
-                      placeholder="Origin" 
-                      value={from}
-                      onChange={(e) => setFrom(e.target.value)}
-                      className="w-full bg-transparent text-sm font-semibold text-boq-text-primary placeholder:text-boq-text-muted focus:outline-none" 
-                    />
+                {/* Inputs Row with imported app theme & aesthetics */}
+                <div
+                  className="flex flex-col lg:flex-row items-stretch lg:items-center rounded-2xl border border-white/[0.07] overflow-visible"
+                  style={{
+                    background: 'rgba(10, 15, 26, 0.72)',
+                    backdropFilter: 'blur(24px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                    boxShadow:
+                      '0 0 0 1px rgba(20,184,166,0.06), inset 0 1px 0 rgba(255,255,255,0.05)',
+                  }}
+                >
+                  {/* ── FROM ── */}
+                  <CityField
+                    label="From"
+                    placeholder="Origin city"
+                    value={from}
+                    onChange={setFrom}
+                  />
+
+                  {/* ── SWAP BUTTON ── */}
+                  <div className="relative flex items-center justify-center lg:px-0 px-4 py-2 lg:py-0 flex-shrink-0">
+                    <div className="hidden lg:block w-px self-stretch bg-white/[0.07] my-2" />
+                    <motion.button
+                      type="button"
+                      onClick={handleSwap}
+                      animate={{ rotate: swapping ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="mx-3 w-8 h-8 rounded-full bg-boq-dark-500 border border-white/10 flex items-center justify-center text-boq-teal-400 hover:bg-boq-teal-500/20 hover:border-boq-teal-500/40 transition-all flex-shrink-0 shadow-md"
+                      aria-label="Swap origin and destination"
+                    >
+                      <ArrowRightLeft size={14} />
+                    </motion.button>
+                    <div className="hidden lg:block w-px self-stretch bg-white/[0.07] my-2" />
                   </div>
 
-                  <div className="hidden lg:flex items-center justify-center -mx-4 z-10">
-                    <div className="bg-boq-dark-500 rounded-full p-2 border border-white/5 shadow-md">
-                       <ArrowRightLeft size={14} className="text-boq-text-muted" />
-                    </div>
-                  </div>
+                  {/* ── TO ── */}
+                  <CityField
+                    label="To"
+                    placeholder="Destination city"
+                    value={to}
+                    onChange={setTo}
+                  />
 
-                  {/* TO */}
-                  <div className="flex-1 relative bg-boq-dark-600 border border-boq-border rounded-2xl p-3 focus-within:border-boq-teal-500 transition-all flex flex-col justify-center lg:pl-5">
-                    <label className="text-[10px] font-bold text-boq-text-muted uppercase tracking-wider mb-0.5">To</label>
-                    <input 
-                      type="text" 
-                      placeholder="Destination" 
-                      value={to}
-                      onChange={(e) => setTo(e.target.value)}
-                      className="w-full bg-transparent text-sm font-semibold text-boq-text-primary placeholder:text-boq-text-muted focus:outline-none" 
-                    />
-                  </div>
+                  <Divider />
 
-                  {/* DEPARTURE */}
-                  <FlightDateField 
-                    label="Departure"
-                    placeholder="04/23/2026"
+                  {/* ── DEPART ── */}
+                  <FlightDateField
+                    label="Depart"
                     value={departDate}
                     onChange={(d) => {
-                       setDepartDate(d);
-                       if (returnDate && isBefore(returnDate, d)) setReturnDate(null);
+                      setDepartDate(d);
+                      if (returnDate && isBefore(returnDate, d)) setReturnDate(null);
                     }}
                   />
 
-                  {/* RETURN */}
-                  <FlightDateField 
-                    label="Return"
-                    placeholder="04/25/2026"
-                    value={returnDate}
-                    onChange={setReturnDate}
-                    minDate={departDate ?? new Date()}
-                  />
+                  <Divider />
 
-                  <button 
-                    onClick={handleSearch}
-                    disabled={isLoading}
-                    className="px-8 py-3 lg:py-0 bg-boq-teal-500 hover:bg-boq-teal-400 text-white font-black rounded-2xl transition-all shadow-lg shadow-boq-teal-500/20 text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? 'SEARCHING...' : 'SEARCH'}
-                  </button>
+                  {/* ── RETURN ── */}
+                  <div className="flex items-center flex-1 relative">
+                    <FlightDateField
+                      label="Return"
+                      value={returnDate}
+                      onChange={setReturnDate}
+                      minDate={departDate ?? new Date()}
+                    />
+                    {returnDate && (
+                      <button
+                        type="button"
+                        onClick={() => setReturnDate(null)}
+                        className="mr-3 p-1 rounded-full hover:bg-white/10 text-boq-text-muted hover:text-boq-text-primary transition-colors flex-shrink-0"
+                        aria-label="Clear return date"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* ── SEARCH BUTTON ── */}
+                  <div className="p-2 flex-shrink-0">
+                    <motion.button
+                      type="button"
+                      disabled={isLoading || !from || !to || !departDate}
+                      onClick={handleSearch}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      className={`flex items-center justify-center gap-2.5 px-8 h-14 font-bold text-sm rounded-xl transition-all w-full lg:w-auto whitespace-nowrap ${
+                        isLoading || !from || !to || !departDate
+                          ? 'bg-white/5 text-boq-text-muted cursor-not-allowed'
+                          : 'bg-boq-teal-500 hover:bg-boq-teal-400 text-white shadow-[0_0_20px_rgba(20,184,166,0.25),0_4px_12px_rgba(0,0,0,0.3)]'
+                      }`}
+                    >
+                      {isLoading ? (
+                        <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <Search size={16} />
+                      )}
+                      {isLoading ? 'Searching...' : 'Search'}
+                    </motion.button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -417,7 +763,7 @@ export default function BookPage() {
                       </div>
                     </motion.div>
                   ))
-                ) : (
+                ) : hasSearched ? (
                   <div className="glass rounded-2xl p-12 text-center border border-white/5">
                     <div className="w-16 h-16 bg-boq-dark-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
                       <Plane size={24} className="text-boq-text-muted" />
@@ -425,7 +771,7 @@ export default function BookPage() {
                     <h3 className="text-lg font-black text-boq-text-primary mb-2">No flights found</h3>
                     <p className="text-sm text-boq-text-muted max-w-xs mx-auto">Try searching for different dates or a different route.</p>
                   </div>
-                )}
+                ) : null}
               </div>
             )}
 
